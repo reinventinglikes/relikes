@@ -1,0 +1,19 @@
+# SPDX-FileCopyrightText: 2026 kotoverse
+# SPDX-License-Identifier: MIT
+
+node_modules/
+release/
+*.tgz
+*.zip
+*.log
+.DS_Store
+.idea/
+.vscode/
+coverage/
+.cache/
+.relikes-php-data/
+backend/.relikes-php-data/
+backend/php/data/*
+!backend/php/data/.gitignore
+!backend/php/data/.htaccess
+!backend/php/data/index.html

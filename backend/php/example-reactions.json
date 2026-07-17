@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "documentId": "relikes-v1-1-playground-doc-1",
+  "documentVersion": "demo-v1",
+  "clientRevision": 1,
+  "mutationId": "example-mutation-0001",
+  "reactions": [
+    {
+      "kind": "like",
+      "runs": [
+        { "start": 34, "end": 102 },
+        { "start": 342, "end": 414 }
+      ]
+    },
+    {
+      "kind": "dislike",
+      "runs": [
+        { "start": 705, "end": 788 }
+      ]
+    }
+  ]
+}

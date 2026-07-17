@@ -1,0 +1,27 @@
+# SPDX-FileCopyrightText: 2026 kotoverse
+# SPDX-License-Identifier: MIT
+
+name: Feature request
+description: Propose a focused browser, protocol, backend, or WordPress improvement.
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior and compatibility effect
+    validations:
+      required: true
+  - type: textarea
+    id: data
+    attributes:
+      label: Data and privacy effect
+      description: State whether this changes collection, storage, retention, identity, or external requests.
+    validations:
+      required: true

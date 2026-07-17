@@ -1,0 +1,53 @@
+# SPDX-FileCopyrightText: 2026 kotoverse
+# SPDX-License-Identifier: MIT
+
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      CLEAN_SELECTION_SOURCE: ${{ github.workspace }}/cleanselection/src/cleanselection.js
+    defaults:
+      run:
+        working-directory: relikes
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: relikes
+          fetch-depth: 0
+      - uses: actions/checkout@v7
+        with:
+          repository: cleanselection/cleanselection
+          ref: v1.1.0
+          path: cleanselection
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - run: npm run build
+      - run: node scripts/fetch-terser.mjs
+      - run: npm run minify
+      - run: npm run docs
+      - run: npm test
+      - run: npm run check
+      - name: Verify tag and package versions
+        run: test "${GITHUB_REF_NAME#v}" = "$(node -p "require('./package.json').version")"
+      - run: npm run package:wordpress
+      - run: npm pack
+      - uses: softprops/action-gh-release@v3
+        with:
+          generate_release_notes: true
+          files: |
+            relikes/dist/relikes.js
+            relikes/dist/relikes.min.js
+            relikes/dist/relikes.standalone.js
+            relikes/dist/relikes.standalone.min.js
+            relikes/relikes-*.tgz
+            relikes/release/relikes-*.zip

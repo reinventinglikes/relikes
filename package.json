@@ -1,0 +1,58 @@
+{
+  "name": "relikes",
+  "version": "1.1.0",
+  "description": "Persistent passage-level like and dislike reactions for the web.",
+  "license": "MIT",
+  "author": {
+    "name": "kotoverse",
+    "url": "https://github.com/kotoverse"
+  },
+  "homepage": "https://relikes.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/reinventinglikes/relikes.git"
+  },
+  "bugs": {
+    "url": "https://github.com/reinventinglikes/relikes/issues"
+  },
+  "main": "dist/relikes.js",
+  "browser": "dist/relikes.js",
+  "unpkg": "dist/relikes.standalone.min.js",
+  "jsdelivr": "dist/relikes.standalone.min.js",
+  "types": "types/index.d.ts",
+  "files": [
+    "dist",
+    "src",
+    "types",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "fetch:minifier": "node scripts/fetch-terser.mjs",
+    "minify": "node scripts/minify.mjs",
+    "docs": "node scripts/generate-function-reference.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "check": "node scripts/check-release.mjs",
+    "package:wordpress": "bash scripts/package-wordpress.sh",
+    "prepack": "npm run build && npm run minify && npm test"
+  },
+  "keywords": [
+    "likes",
+    "reactions",
+    "annotations",
+    "heatmap",
+    "text-selection"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "peerDependencies": {
+    "cleanselection": "^1.1.0"
+  },
+  "peerDependenciesMeta": {
+    "cleanselection": {
+      "optional": true
+    }
+  }
+}

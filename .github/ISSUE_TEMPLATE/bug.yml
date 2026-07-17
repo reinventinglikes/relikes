@@ -1,0 +1,43 @@
+# SPDX-FileCopyrightText: 2026 kotoverse
+# SPDX-License-Identifier: MIT
+
+name: Bug report
+description: Report a reproducible Re:Likes problem.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Do not disclose security vulnerabilities here; use private vulnerability reporting.
+  - type: input
+    id: versions
+    attributes:
+      label: Re:Likes and Clean Selection versions
+      placeholder: Re:Likes 1.0.0; Clean Selection 1.0.0
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Browser, operating system, and backend
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Include reduced HTML, configuration, protocol response, and exact steps with secrets removed.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true

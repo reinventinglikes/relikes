@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: 2026 kotoverse
+# SPDX-License-Identifier: MIT
+
+Require all denied
+
+<IfModule mod_access_compat.c>
+  Deny from all
+</IfModule>

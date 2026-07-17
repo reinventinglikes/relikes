@@ -1,0 +1,11 @@
+# SPDX-FileCopyrightText: 2026 kotoverse
+# SPDX-License-Identifier: MIT
+
+blank_issues_enabled: false
+contact_links:
+  - name: Integration questions
+    url: https://github.com/reinventinglikes/relikes/discussions
+    about: Ask for help with browser, backend, or WordPress integration.
+  - name: Security report
+    url: https://github.com/reinventinglikes/relikes/security/advisories/new
+    about: Report a suspected vulnerability privately.

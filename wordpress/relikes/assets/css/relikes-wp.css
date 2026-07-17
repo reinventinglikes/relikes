@@ -1,0 +1,95 @@
+/*
+ * SPDX-FileCopyrightText: 2026 kotoverse
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+
+html.relikes-wp-active,
+html.relikes-wp-active body {
+  overflow-x: clip;
+}
+
+@supports not (overflow-x: clip) {
+  html.relikes-wp-active,
+  html.relikes-wp-active body {
+    overflow-x: hidden;
+  }
+}
+
+.relikes-wp-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  margin: 0 0 .75rem;
+  font: 600 .875rem/1.2 sans-serif;
+}
+
+.relikes-wp-switch {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 2px;
+  border: 1px solid var(--relikes-control-border, rgba(42, 66, 91, .14));
+  border-radius: var(--relikes-control-radius, 999px);
+  background: var(--relikes-control-background, rgba(220, 232, 242, .6));
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.relikes-wp-switch::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 2px auto 2px 2px;
+  width: calc(50% - 2px);
+  border-radius: inherit;
+  background: var(--relikes-control-accent, #294765);
+  transform: translateX(var(--relikes-switch-index, 0%));
+  transition: transform 190ms cubic-bezier(.22, .72, .24, 1);
+}
+
+.relikes-wp-switch[data-mode="heatmap"] { --relikes-switch-index: 100%; }
+
+.relikes-wp-switch button,
+.relikes-wp-clear {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--relikes-control-text, #607489);
+  padding: .48rem .7rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.relikes-wp-switch button[aria-pressed="true"] { color: var(--relikes-control-active-text, #fff); }
+.relikes-wp-switch button:focus {
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+.relikes-wp-switch button:focus-visible {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: .2em;
+}
+.relikes-wp-clear { margin-inline-start: auto; color: var(--relikes-control-clear, #607489); opacity: .72; }
+.relikes-wp-clear:hover,
+.relikes-wp-clear:focus-visible { opacity: 1; }
+.relikes-wp-clear:disabled { cursor: default; opacity: .36; }
+
+.relikes-wp-status {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+@media (max-width: 460px) {
+  .relikes-wp-tools { align-items: stretch; flex-wrap: wrap; }
+  .relikes-wp-switch { flex: 1 1 100%; }
+}

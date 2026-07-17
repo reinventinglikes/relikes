@@ -1,0 +1,46 @@
+# SPDX-FileCopyrightText: 2026 kotoverse
+# SPDX-License-Identifier: MIT
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      CLEAN_SELECTION_SOURCE: ${{ github.workspace }}/cleanselection/src/cleanselection.js
+    defaults:
+      run:
+        working-directory: relikes
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: relikes
+      - uses: actions/checkout@v7
+        with:
+          repository: cleanselection/cleanselection
+          ref: v1.1.0
+          path: cleanselection
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - run: npm run build
+      - run: node scripts/fetch-terser.mjs
+      - run: npm run minify
+      - run: npm run docs
+      - run: npm test
+      - run: npm run check
+      - run: node --check src/relikes.js
+      - run: node --check dist/relikes.min.js
+      - run: node --check dist/relikes.standalone.min.js
+      - name: Lint PHP syntax
+        run: find backend/php wordpress/relikes -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: Verify generated files are current
+        run: git diff --exit-code -- dist docs/FUNCTIONS.md wordpress/relikes/assets/js/cleanselection.js wordpress/relikes/assets/js/cleanselection.min.js wordpress/relikes/assets/js/relikes.js wordpress/relikes/assets/js/relikes.min.js

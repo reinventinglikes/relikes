@@ -44,6 +44,24 @@ test('WordPress operational cores are generated and minified', async () => {
   assert.deepEqual(wordpressRelikes, minifiedRelikes);
 });
 
+test('WordPress fractional brush controls retain fine input precision', async () => {
+  const source = await readFile(
+    resolve(root, 'wordpress/relikes/includes/class-relikes-plugin.php'),
+    'utf8'
+  );
+  for (const key of [
+    'brush_hardness',
+    'brush_spacing',
+    'brush_turbulence',
+    'brush_turbulence_speed',
+    'brush_padding_ratio'
+  ]) {
+    assert.match(source, new RegExp(`'${key}'[^?]+0\\.01 \\); \\?>`), `${key} must use a 0.01 step`);
+  }
+  assert.match(source, /'brush_fade_speed'[^?]+0\.001, 0\.08, 0\.001 \); \?>/);
+  assert.match(source, /'brush_fade_speed'.+0\.001, 0\.08 \),/);
+});
+
 test('standalone build retains both MIT notices', async () => {
   for (const file of ['dist/relikes.standalone.js', 'dist/relikes.standalone.min.js']) {
     const standalone = await readFile(resolve(root, file), 'utf8');

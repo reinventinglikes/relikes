@@ -67,6 +67,7 @@ The operational Clean Selection and Re:Likes browser cores are minified with Ter
 == Changelog ==
 
 = 1.1.0 =
+* Allowed 0.01 increments for fractional brush controls and 0.001 values for Fog fade speed.
 * Added complete brush, reaction-cloud, heatmap, cursor, control-bar, and separate post/comment geometry settings in a styled administration screen.
 * Added block-theme comment defaults, excluded media attachments, and gave Re:Likes priority over overlapping Clean Selection instances.
 * Rebuilt reaction and heatmap geometry after responsive layout changes and stabilized anchors across wrapping-space changes.

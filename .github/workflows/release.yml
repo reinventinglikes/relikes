@@ -28,7 +28,7 @@ jobs:
           repository: cleanselection/cleanselection
           ref: v1.1.0
           path: cleanselection
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
       - run: npm run build

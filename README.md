@@ -64,7 +64,11 @@ An intentionally simple PHP 8.1 backend is included in [`backend/php`](backend/p
 
 ## WordPress
 
-The maintained plugin is in [`wordpress/relikes`](wordpress/relikes). It provides its own REST implementation and normalized database tables. Releases attach an installable `relikes-1.1.0.zip`. See [WordPress integration](docs/WORDPRESS.md).
+The maintained plugin is in [`wordpress/relikes`](wordpress/relikes). It provides its own REST implementation and normalized database tables. 
+
+[Download the latest WordPress plugin](https://github.com/reinventinglikes/relikes/releases/latest)
+
+The release page contains the installable `relikes-VERSION.zip`. See [WordPress integration](docs/WORDPRESS.md).
 
 ## Documentation
 

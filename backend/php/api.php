@@ -295,6 +295,9 @@ function handle_heatmap(array $config): void
         return $heatmap;
     });
 
+    // Keep cached aggregates exact for current-subject subtraction. The client
+    // applies this server-provided cap only after it adds immediate local reactions.
+    $heatmap['maxSteps'] = max(1, min(1000, (int) ($config['heatmap_max_steps'] ?? 100)));
     $etagSource = $heatmap;
     unset($etagSource['generatedAt']);
     $etag = '"relikes-' . hash('sha256', json_encode($etagSource)) . '"';

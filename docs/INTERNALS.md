@@ -14,6 +14,6 @@ Re:Likes is a dependency-free IIFE layered over Clean Selection.
 
 The browser does not treat visual rectangles as canonical data. Anchors and UTF-16 offsets are canonical; geometry is rebuilt from current content whenever the instance refreshes. Index offsets include semantic text even when an individual grapheme has no measurable rectangle, and anchor recovery has a whitespace-insensitive fallback for responsive wrapping differences.
 
-The PHP backend uses one locked document directory, atomic JSON replacement, signed anonymous tokens, expiration, and sweep-line heatmap aggregation. The WordPress implementation maps the same concepts into document, subject, and normalized run tables and exposes schema-one REST routes.
+The PHP backend uses one locked document directory, atomic JSON replacement, signed anonymous tokens, expiration, and sweep-line heatmap aggregation. The WordPress implementation maps the same concepts into document, subject, and normalized run tables and exposes schema-one REST routes. Both backend caches retain exact counts; the browser combines immediate local reactions first, then quantizes adjacent fragments into at most the configured number of visual intensity levels.
 
 See [FUNCTIONS.md](FUNCTIONS.md) for the exhaustive callable inventory. Internal helpers, underscore-prefixed methods, storage JSON layout, and renderer implementation details are not stable contracts.

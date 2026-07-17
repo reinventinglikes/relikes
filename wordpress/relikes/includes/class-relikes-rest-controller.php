@@ -130,7 +130,8 @@ final class Rest_Controller {
 			if ( $subject ) $excluded = $subject['key'];
 		}
 
-		$response = $this->storage->heatmap( $document_id, $document_version, $excluded );
+		$settings = Plugin::instance()->settings();
+		$response = $this->storage->heatmap( $document_id, $document_version, $excluded, $settings['heatmap_max_steps'] );
 		$rest     = rest_ensure_response( $response );
 		$rest->header( 'Cache-Control', $excluded ? 'private, no-store' : 'public, max-age=60' );
 		return $rest;
@@ -288,7 +289,12 @@ final class Rest_Controller {
 	}
 
 	private function request_ip() {
-		return sanitize_text_field( (string) ( $_SERVER['REMOTE_ADDR'] ?? 'unknown' ) );
+		if ( ! isset( $_SERVER['REMOTE_ADDR'] ) ) {
+			return 'unknown';
+		}
+
+		$remote_addr = sanitize_text_field( wp_unslash( (string) $_SERVER['REMOTE_ADDR'] ) );
+		return false !== filter_var( $remote_addr, FILTER_VALIDATE_IP ) ? $remote_addr : 'unknown';
 	}
 
 	private function from_error( \WP_Error $error ) {

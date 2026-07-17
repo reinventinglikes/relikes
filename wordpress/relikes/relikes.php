@@ -4,7 +4,7 @@
  * Plugin URI: https://relikes.com/
  * Description: Persistent like and dislike reactions attached to exact passages of WordPress content.
  * Version: 1.1.0
- * Requires at least: 6.0
+ * Requires at least: 6.2
  * Requires PHP: 7.4
  * Author: kotoverse
  * Author URI: https://github.com/kotoverse

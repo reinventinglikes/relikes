@@ -53,6 +53,7 @@ declare namespace Relikes {
     scale?: 'linear' | 'sqrt' | 'log';
     minAlpha?: number;
     maxAlpha?: number;
+    maxSteps?: number;
     includeLocalReactions?: boolean;
     overlapMode?: 'split' | 'blend';
     data?: HeatmapResponse;
@@ -71,6 +72,7 @@ declare namespace Relikes {
     maxHits?: number;
     totalUsers?: number;
     totalReactions?: number;
+    maxSteps?: number;
     segments?: HeatmapSegment[];
   }
 

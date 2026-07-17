@@ -20,6 +20,7 @@ return [
     'anonymous_token_ttl' => 90 * 24 * 60 * 60,
     'anonymous_snapshot_ttl' => 120 * 24 * 60 * 60,
     'heatmap_cache_ttl' => 5 * 60,
+    'heatmap_max_steps' => 100,
     'max_body_bytes' => 64 * 1024,
     'max_reactions' => 100,
     'max_runs' => 250,

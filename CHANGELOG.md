@@ -11,6 +11,8 @@ This project follows [Semantic Versioning](https://semver.org/). Dates use ISO 8
 - Improved semantic offset indexing and whitespace-insensitive anchor recovery across responsive layout changes.
 - Added hardened overlay sizing, expanded source documentation, a synchronized standalone bundle, and the redesigned WordPress plugin.
 - Allowed finer WordPress brush tuning with 0.01 increments and a 0.001 Fog fade-speed minimum.
+- Bounded heatmap rendering to 100 intensity levels by default while preserving exact backend counts and immediate local reactions.
+- Added exact aggregate caching and current-reader subtraction to the WordPress backend, plus WordPress.org compatibility fixes.
 
 ## [1.0.0] - 2026-07-13
 

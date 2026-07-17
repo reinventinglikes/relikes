@@ -1,7 +1,8 @@
 === Re:Likes ===
 Contributors: kotoverse
 Tags: reactions, likes, heatmap, comments, annotations
-Requires at least: 6.0
+Requires at least: 6.2
+Tested up to: 7.0
 Requires PHP: 7.4
 Stable tag: 1.1.0
 License: GPLv2 or later
@@ -67,6 +68,9 @@ The operational Clean Selection and Re:Likes browser cores are minified with Ter
 == Changelog ==
 
 = 1.1.0 =
+* Added a configurable maximum of 100 heatmap intensity levels by default and grouped adjacent fragments that share a visual level.
+* Cached exact WordPress heatmap aggregates while preserving accurate current-reader exclusion and anonymous expiry handling.
+* Updated custom-table queries and uninstall handling for WordPress.org Plugin Check compatibility.
 * Allowed 0.01 increments for fractional brush controls and 0.001 values for Fog fade speed.
 * Added complete brush, reaction-cloud, heatmap, cursor, control-bar, and separate post/comment geometry settings in a styled administration screen.
 * Added block-theme comment defaults, excluded media attachments, and gave Re:Likes priority over overlapping Clean Selection instances.

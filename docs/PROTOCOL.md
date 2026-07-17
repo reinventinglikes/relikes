@@ -54,6 +54,7 @@ The request includes `documentId` and `documentVersion`. A fresh anonymous reade
   "schema": 1,
   "revision": "18",
   "maxHits": 7,
+  "maxSteps": 100,
   "totalUsers": 12,
   "totalReactions": 31,
   "segments": [
@@ -64,6 +65,8 @@ The request includes `documentId` and `documentVersion`. A fresh anonymous reade
 ```
 
 Segments are non-empty, sorted offset ranges. Personalized responses must be private and should use `Cache-Control: private, no-store`; shared aggregates can use a short public cache lifetime.
+
+`maxSteps` is an optional browser-rendering cap, not a reaction-count limit. Backends should keep and return exact segment counts; the browser applies the cap after combining the aggregate with the current reader's immediate local reactions. This preserves correct exclusion and synchronization while bounding the number of distinct heatmap intensities.
 
 ## Errors
 

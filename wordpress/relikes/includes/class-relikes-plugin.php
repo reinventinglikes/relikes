@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class Plugin {
 	const OPTION           = 'relikes_wp_settings';
-	const SETTINGS_VERSION = 3;
+	const SETTINGS_VERSION = 4;
 
 	private static $instance;
 	private $storage;
@@ -91,6 +91,7 @@ final class Plugin {
 			'comment_virtual_padding'   => 20,
 			'comment_detect_tolerance'  => 3,
 			'heatmap_scale'             => 'linear',
+			'heatmap_max_steps'         => 100,
 			'heatmap_min_alpha'         => 0,
 			'heatmap_max_alpha'         => 0.48,
 			'control_appearance'        => 'default',
@@ -125,6 +126,11 @@ final class Plugin {
 		if ( $version < 3 ) {
 			$settings['center_popup']     = ! empty( $settings['center_popup'] );
 			$settings['settings_version'] = self::SETTINGS_VERSION;
+		}
+
+		if ( $version < 4 ) {
+			$settings['heatmap_max_steps'] = min( 1000, max( 1, absint( $settings['heatmap_max_steps'] ?? 100 ) ) );
+			$settings['settings_version']  = self::SETTINGS_VERSION;
 		}
 
 		return $settings;
@@ -209,6 +215,7 @@ final class Plugin {
 			'comment_virtual_padding'   => $this->clamp_number( $input['comment_virtual_padding'] ?? null, $defaults['comment_virtual_padding'], 0, 48 ),
 			'comment_detect_tolerance'  => $this->clamp_number( $input['comment_detect_tolerance'] ?? null, $defaults['comment_detect_tolerance'], 0, 18 ),
 			'heatmap_scale'             => in_array( $input['heatmap_scale'] ?? '', array( 'linear', 'sqrt', 'log' ), true ) ? $input['heatmap_scale'] : $defaults['heatmap_scale'],
+			'heatmap_max_steps'         => min( 1000, max( 1, absint( $input['heatmap_max_steps'] ?? $defaults['heatmap_max_steps'] ) ) ),
 			'heatmap_min_alpha'         => min( $heat_min, $heat_max ),
 			'heatmap_max_alpha'         => max( $heat_min, $heat_max ),
 			'control_appearance'        => 'theme' === ( $input['control_appearance'] ?? '' ) ? 'theme' : 'default',
@@ -305,7 +312,7 @@ final class Plugin {
 
 					<section class="rlkwp-card rlkwp-card--wide"><div class="rlkwp-card__heading"><span>4</span><div><h2><?php esc_html_e( 'Reaction clouds and heatmap', 'relikes' ); ?></h2><p><?php esc_html_e( 'Configure the persistent Like/Dislike layer independently from the active selection color.', 'relikes' ); ?></p></div></div><div class="rlkwp-field-grid">
 						<?php $this->render_color_field( $settings, 'like_color', __( 'Like color', 'relikes' ) ); ?><?php $this->render_color_field( $settings, 'dislike_color', __( 'Dislike color', 'relikes' ) ); ?><?php $this->render_number_field( $settings, 'reaction_alpha', __( 'My reaction opacity', 'relikes' ), 0.05, 0.8, 0.01 ); ?><?php $this->render_number_field( $settings, 'cloud_padding_ratio', __( 'Persistent cloud padding', 'relikes' ), 0.1, 0.6, 0.01 ); ?>
-						<label class="rlkwp-field"><span class="rlkwp-field__label"><?php esc_html_e( 'Heatmap scale', 'relikes' ); ?></span><select name="<?php echo esc_attr( self::OPTION ); ?>[heatmap_scale]"><option value="linear" <?php selected( $settings['heatmap_scale'], 'linear' ); ?>><?php esc_html_e( 'Linear', 'relikes' ); ?></option><option value="sqrt" <?php selected( $settings['heatmap_scale'], 'sqrt' ); ?>><?php esc_html_e( 'Square root', 'relikes' ); ?></option><option value="log" <?php selected( $settings['heatmap_scale'], 'log' ); ?>><?php esc_html_e( 'Logarithmic', 'relikes' ); ?></option></select></label><?php $this->render_number_field( $settings, 'heatmap_min_alpha', __( 'Heatmap minimum opacity', 'relikes' ), 0, 0.4, 0.01 ); ?><?php $this->render_number_field( $settings, 'heatmap_max_alpha', __( 'Heatmap maximum opacity', 'relikes' ), 0.1, 0.75, 0.01 ); ?>
+						<label class="rlkwp-field"><span class="rlkwp-field__label"><?php esc_html_e( 'Heatmap scale', 'relikes' ); ?></span><select name="<?php echo esc_attr( self::OPTION ); ?>[heatmap_scale]"><option value="linear" <?php selected( $settings['heatmap_scale'], 'linear' ); ?>><?php esc_html_e( 'Linear', 'relikes' ); ?></option><option value="sqrt" <?php selected( $settings['heatmap_scale'], 'sqrt' ); ?>><?php esc_html_e( 'Square root', 'relikes' ); ?></option><option value="log" <?php selected( $settings['heatmap_scale'], 'log' ); ?>><?php esc_html_e( 'Logarithmic', 'relikes' ); ?></option></select></label><?php $this->render_number_field( $settings, 'heatmap_max_steps', __( 'Maximum heatmap levels', 'relikes' ), 1, 1000, 1, '', __( 'Groups high reaction counts into evenly sized visual intensity bands.', 'relikes' ) ); ?><?php $this->render_number_field( $settings, 'heatmap_min_alpha', __( 'Heatmap minimum opacity', 'relikes' ), 0, 0.4, 0.01 ); ?><?php $this->render_number_field( $settings, 'heatmap_max_alpha', __( 'Heatmap maximum opacity', 'relikes' ), 0.1, 0.75, 0.01 ); ?>
 					</div><div class="rlkwp-subcard-grid"><?php $this->render_geometry_card( $settings, 'content', __( 'Post geometry', 'relikes' ), __( 'For regular post and page typography.', 'relikes' ) ); ?><?php $this->render_geometry_card( $settings, 'comment', __( 'Comment geometry', 'relikes' ), __( 'For typically smaller comment typography.', 'relikes' ) ); ?></div></section>
 
 					<section class="rlkwp-card"><div class="rlkwp-card__heading"><span>5</span><div><h2><?php esc_html_e( 'Reader control bar', 'relikes' ); ?></h2><p><?php esc_html_e( 'Customize the My reactions / Heatmap switch and clear action.', 'relikes' ); ?></p></div></div><label class="rlkwp-field"><span class="rlkwp-field__label"><?php esc_html_e( 'Appearance', 'relikes' ); ?></span><select name="<?php echo esc_attr( self::OPTION ); ?>[control_appearance]"><option value="default" <?php selected( $settings['control_appearance'], 'default' ); ?>><?php esc_html_e( 'Styled default', 'relikes' ); ?></option><option value="theme" <?php selected( $settings['control_appearance'], 'theme' ); ?>><?php esc_html_e( 'Theme-controlled variables', 'relikes' ); ?></option></select></label><div class="rlkwp-field-grid rlkwp-field-grid--compact"><?php $this->render_color_field( $settings, 'control_accent_color', __( 'Active background', 'relikes' ) ); ?><?php $this->render_color_field( $settings, 'control_background_color', __( 'Track background', 'relikes' ) ); ?><?php $this->render_color_field( $settings, 'control_border_color', __( 'Border', 'relikes' ) ); ?><?php $this->render_color_field( $settings, 'control_text_color', __( 'Inactive text', 'relikes' ) ); ?><?php $this->render_color_field( $settings, 'control_active_text_color', __( 'Active text', 'relikes' ) ); ?><?php $this->render_color_field( $settings, 'control_clear_color', __( 'Clear action', 'relikes' ) ); ?><?php $this->render_number_field( $settings, 'control_radius', __( 'Corner radius', 'relikes' ), 0, 999, 1, 'px' ); ?></div></section>
@@ -397,6 +404,7 @@ final class Plugin {
 				),
 				'heatmap'          => array(
 					'scale'    => $settings['heatmap_scale'],
+					'maxSteps' => (int) $settings['heatmap_max_steps'],
 					'minAlpha' => (float) $settings['heatmap_min_alpha'],
 					'maxAlpha' => (float) $settings['heatmap_max_alpha'],
 				),

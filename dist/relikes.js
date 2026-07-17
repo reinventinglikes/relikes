@@ -38,6 +38,7 @@
     scale: 'linear',
     minAlpha: 0,
     maxAlpha: 0.48,
+    maxSteps: 100,
     includeLocalReactions: true,
     overlapMode: 'split'
   });
@@ -1744,10 +1745,6 @@
     const heatmap = normalizeHeatmapResponse(response);
     const heatmapOptions = normalizeHeatmapOptions(options);
     const segments = heatmap.segments;
-    const maxChannelHits = Math.max(
-      1,
-      ...segments.flatMap(segment => [segment.likes, segment.dislikes])
-    );
     const localLikeIndices = new Set();
     const localDislikeIndices = new Set();
 
@@ -1797,23 +1794,45 @@
       }
     }
 
+    // Quantize only after local reactions have been added to the exact server
+    // counts. This preserves immediate local feedback and lets adjacent text
+    // fragments that land in the same visual bands share one overlay entry.
+    const maxChannelHits = Math.max(
+      1,
+      ...scoredFragments.flatMap(scored => [scored.likes, scored.dislikes])
+    );
+    const maximumSteps = Math.min(
+      heatmapOptions.maxSteps,
+      heatmap.maxSteps ?? heatmapOptions.maxSteps
+    );
+    const effectiveSteps = Math.max(1, Math.min(maxChannelHits, maximumSteps));
     const groups = [];
 
     for (const scored of scoredFragments) {
+      const likeLevel = getHeatmapLevel(scored.likes, maxChannelHits, effectiveSteps);
+      const dislikeLevel = getHeatmapLevel(scored.dislikes, maxChannelHits, effectiveSteps);
       const previousGroup = groups[groups.length - 1];
       const previousFragment = previousGroup?.fragments[previousGroup.fragments.length - 1];
 
       if (
         previousGroup &&
         previousFragment.index + 1 === scored.fragment.index &&
-        previousGroup.likes === scored.likes &&
-        previousGroup.dislikes === scored.dislikes
+        previousGroup.likeLevel === likeLevel &&
+        previousGroup.dislikeLevel === dislikeLevel
       ) {
         previousGroup.fragments.push(scored.fragment);
+        previousGroup.likes = Math.max(previousGroup.likes, scored.likes);
+        previousGroup.dislikes = Math.max(previousGroup.dislikes, scored.dislikes);
+        previousGroup.minLikes = Math.min(previousGroup.minLikes, scored.likes);
+        previousGroup.minDislikes = Math.min(previousGroup.minDislikes, scored.dislikes);
       } else {
         groups.push({
           likes: scored.likes,
           dislikes: scored.dislikes,
+          minLikes: scored.likes,
+          minDislikes: scored.dislikes,
+          likeLevel,
+          dislikeLevel,
           fragments: [scored.fragment]
         });
       }
@@ -1822,18 +1841,30 @@
     return groups.flatMap((group, groupIndex) => {
       const firstIndex = group.fragments[0].index;
       const lastIndex = group.fragments[group.fragments.length - 1].index;
-      const hasOverlap = group.likes > 0 && group.dislikes > 0;
+      const hasOverlap = group.likeLevel > 0 && group.dislikeLevel > 0;
       const channels = [
-        { name: 'like', count: group.likes, color: colors.like },
-        { name: 'dislike', count: group.dislikes, color: colors.dislike }
+        {
+          name: 'like',
+          count: group.likes,
+          minCount: group.minLikes,
+          level: group.likeLevel,
+          color: colors.like
+        },
+        {
+          name: 'dislike',
+          count: group.dislikes,
+          minCount: group.minDislikes,
+          level: group.dislikeLevel,
+          color: colors.dislike
+        }
       ];
 
       return channels
-        .filter(channel => channel.count > 0)
+        .filter(channel => channel.level > 0)
         .map(channel => {
           const strength = getHeatmapStrength(
-            channel.count,
-            maxChannelHits,
+            channel.level,
+            effectiveSteps,
             heatmapOptions.scale
           );
 
@@ -1853,6 +1884,9 @@
             heatmap: {
               channel: channel.name,
               count: channel.count,
+              minCount: channel.minCount,
+              level: channel.level,
+              maxSteps: effectiveSteps,
               maxChannelHits,
               likes: group.likes,
               dislikes: group.dislikes,
@@ -1862,6 +1896,12 @@
           };
         });
     });
+  }
+
+  function getHeatmapLevel(total, maxHits, maxSteps = DEFAULT_HEATMAP.maxSteps) {
+    if (total <= 0 || maxHits <= 0) return 0;
+    const steps = Math.max(1, Math.min(Math.floor(maxSteps), Math.ceil(maxHits)));
+    return clamp(Math.ceil(total * steps / maxHits), 1, steps);
   }
 
   function getHeatmapStrength(total, maxHits, scale = 'sqrt') {
@@ -2495,6 +2535,7 @@
         : DEFAULT_HEATMAP.scale,
       minAlpha: Math.min(minAlpha, maxAlpha),
       maxAlpha: Math.max(minAlpha, maxAlpha),
+      maxSteps: normalizeHeatmapSteps(source.maxSteps, DEFAULT_HEATMAP.maxSteps),
       includeLocalReactions: source.includeLocalReactions === undefined
         ? DEFAULT_HEATMAP.includeLocalReactions
         : Boolean(source.includeLocalReactions),
@@ -2532,6 +2573,7 @@
       maxHits: computedMaxHits,
       totalUsers: normalizeHeatmapCount(source.totalUsers),
       totalReactions: normalizeHeatmapCount(source.totalReactions),
+      maxSteps: normalizeHeatmapSteps(source.maxSteps, null),
       segments
     };
   }
@@ -2548,6 +2590,12 @@
     const numericValue = Number(value);
     if (!Number.isFinite(numericValue)) return 0;
     return clamp(Math.floor(numericValue), 0, 1000000);
+  }
+
+  function normalizeHeatmapSteps(value, fallback) {
+    const numericValue = Number(value);
+    if (!Number.isFinite(numericValue) || numericValue < 1) return fallback;
+    return clamp(Math.round(numericValue), 1, 1000);
   }
 
   function normalizeOptionalAlpha(value) {

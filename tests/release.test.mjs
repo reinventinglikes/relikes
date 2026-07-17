@@ -101,3 +101,25 @@ test('PHP heatmap supports fresh public readers but validates supplied tokens', 
   assert.match(source, /'Cache-Control: public, max-age=15, stale-while-revalidate=45'/);
   assert.match(source, /'Cache-Control: private, no-store'/);
 });
+
+test('heatmap level caps stay synchronized across core and backends', async () => {
+  const core = await readFile(resolve(root, 'src/relikes.js'), 'utf8');
+  const phpBackend = await readFile(resolve(root, 'backend/php/api.php'), 'utf8');
+  const phpConfig = await readFile(resolve(root, 'backend/php/config.php'), 'utf8');
+  const wordpress = await readFile(
+    resolve(root, 'wordpress/relikes/includes/class-relikes-plugin.php'),
+    'utf8'
+  );
+  const wordpressStorage = await readFile(
+    resolve(root, 'wordpress/relikes/includes/class-relikes-storage.php'),
+    'utf8'
+  );
+
+  assert.match(core, /maxSteps:\s*100/);
+  assert.match(core, /function getHeatmapLevel\(/);
+  assert.match(core, /previousGroup\.likeLevel === likeLevel/);
+  assert.match(phpConfig, /'heatmap_max_steps'\s*=>\s*100/);
+  assert.match(phpBackend, /\$heatmap\['maxSteps'\]/);
+  assert.match(wordpress, /'heatmap_max_steps'\s*=>\s*100/);
+  assert.match(wordpressStorage, /function cached_heatmap\(/);
+});

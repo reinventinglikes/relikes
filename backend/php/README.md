@@ -41,6 +41,8 @@ All routes use `api.php?action=...` so the prototype works without URL rewriting
 
 A fresh anonymous reader requests the public heatmap without creating a session. After that reader first saves a reaction, the client has a signed token and adds `excludeCurrentUser=1` to subsequent heatmap requests. The legacy `excludeSubject=1` spelling is also accepted by this backend. For compatibility with an older cached client, an exclusion request without a token falls back to the public heatmap; a supplied but invalid token still returns `401`. An authenticated exclusion request returns the aggregate without that subject, allowing the renderer to combine everyone else’s counts with the current user’s immediate local reactions without double-counting them. Personalized responses are private and are not cached by clients or shared proxies.
 
+The backend keeps exact aggregate counts in its cache and returns `maxSteps` as a visual-intensity cap. Its default is `100`, configured by `heatmap_max_steps` in `config.php`. Exact cached counts are retained so personalized responses can subtract the current subject before the browser groups the result into visual levels.
+
 This PHP prototype does not yet accept a registered user ID from the reaction body. Its anonymous identity comes from a signed bearer token. A registered integration must authenticate the request independently and verify that any supplied `userId` matches that trusted identity.
 
 ## Run locally

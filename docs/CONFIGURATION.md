@@ -46,9 +46,12 @@ See the [Clean Selection configuration reference](https://github.com/cleanselect
 | `heatmap.scale` | `linear` | Count scaling: `linear`, `sqrt`, or `log`. |
 | `heatmap.minAlpha` | `0` | Minimum visible aggregate opacity. |
 | `heatmap.maxAlpha` | `0.48` | Maximum aggregate opacity. |
+| `heatmap.maxSteps` | `100` | Maximum visual intensity levels, clamped from 1 to 1000. |
 | `heatmap.includeLocalReactions` | `true` | Combine local immediate state with aggregate data. |
 | `heatmap.overlapMode` | `split` | Render Like/Dislike overlap as `split` or `blend`. |
 | `heatmap.data` | empty schema-one response | Initial aggregate response. |
+
+When the busiest Like or Dislike channel exceeds `maxSteps`, exact counts are rounded upward into evenly sized visual bands. For example, a maximum overlap of 10,000 with the default 100 levels maps counts 1–100 to level 1, 101–200 to level 2, and so on. A backend may return a lower `maxSteps` cap; the stricter client or server value wins.
 
 ## Callbacks
 

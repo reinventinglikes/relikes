@@ -1,5 +1,5 @@
 /*!
- * Clean Selection v1.1.0
+ * Clean Selection v1.1.1
  * Airbrush-style text selection for the web.
  *
  * Copyright (c) 2026 kotoverse
@@ -50,6 +50,9 @@
   // Apostrophes and hyphens should behave like word glue, not punctuation,
   // when they sit between two word characters on the same rendered line.
   const WORD_JOINERS = new Set(["'", '’', '-', '‐', '‑']);
+  const SEGMENTER = 'Segmenter' in Intl
+    ? new Intl.Segmenter(undefined, { granularity: 'grapheme' })
+    : null;
   const POPUP_THEME_TOKENS = Object.freeze({
     minWidth: '220px',
     maxWidth: 'min(320px, calc(100vw - 32px))',
@@ -1734,8 +1737,8 @@
     /* ---------- Text ---------- */
 
     _segmentText(text) {
-      if ('Segmenter' in Intl) {
-        return [...new Intl.Segmenter(undefined, { granularity: 'grapheme' }).segment(text)]
+      if (SEGMENTER) {
+        return [...SEGMENTER.segment(text)]
           .map(part => ({
             text: part.segment,
             startOffset: part.index,
@@ -1860,6 +1863,51 @@
 
         range.detach?.();
       }
+
+      this._indexFragments();
+    }
+
+    _indexFragments() {
+      // Bucket by vertical position, independently of DOM order or line wrapping.
+      // A maximum-height margin also finds tall fragments that start above a stroke.
+      this.fragmentBuckets = new Map();
+      this.fragmentBucketHeight = 64;
+      this.maxFragmentHeight = 0;
+      this.firstFragmentBucket = Infinity;
+      this.lastFragmentBucket = -Infinity;
+
+      for (const fragment of this.fragments) {
+        this.maxFragmentHeight = Math.max(this.maxFragmentHeight, fragment.height);
+        const key = Math.floor(fragment.y / this.fragmentBucketHeight);
+        const bucket = this.fragmentBuckets.get(key);
+        if (bucket) bucket.push(fragment);
+        else this.fragmentBuckets.set(key, [fragment]);
+        this.firstFragmentBucket = Math.min(this.firstFragmentBucket, key);
+        this.lastFragmentBucket = Math.max(this.lastFragmentBucket, key);
+      }
+    }
+
+    _getDetectionCandidates(y, reach) {
+      if (!this.fragmentBuckets || !Number.isFinite(y) || !Number.isFinite(reach)) {
+        return this.fragments;
+      }
+
+      const first = Math.max(this.firstFragmentBucket,
+        Math.floor((y - reach - this.maxFragmentHeight) / this.fragmentBucketHeight));
+      const last = Math.min(this.lastFragmentBucket,
+        Math.floor((y + reach) / this.fragmentBucketHeight));
+
+      // Very large brushes and sparse layouts can make a direct scan cheaper.
+      if (last - first >= this.fragmentBuckets.size) return this.fragments;
+
+      const candidates = [];
+      for (let key = first; key <= last; key++) {
+        const bucket = this.fragmentBuckets.get(key);
+        if (bucket) {
+          for (const fragment of bucket) candidates.push(fragment);
+        }
+      }
+      return candidates.sort((left, right) => left.index - right.index);
     }
 
     _isSelectableTextNode(node) {
@@ -2650,7 +2698,7 @@
       const reach = this.opts.radius + this.opts.detectTolerance;
       const reachSq = reach * reach;
 
-      for (const fragment of this.fragments) {
+      for (const fragment of this._getDetectionCandidates(y, reach)) {
         if (fragment.x > x + reach || fragment.x + fragment.width < x - reach) continue;
         if (fragment.y > y + reach || fragment.y + fragment.height < y - reach) continue;
 
@@ -5269,7 +5317,7 @@
   // - createPopupShell(className): shadow-DOM host with shared popup theme styles only
   // - createDefaultPopupDom(className): built-in popup DOM, useful as a customization baseline
   CleanSelection.popupThemeTokens = POPUP_THEME_TOKENS;
-  CleanSelection.version = '1.1.0';
+  CleanSelection.version = '1.1.1';
   CleanSelection.touchEraseBarThemeTokens = TOUCH_ERASE_BAR_THEME;
   CleanSelection.touchEraseBarLayoutDefaults = TOUCH_ERASE_BAR_LAYOUT;
   CleanSelection.createPopupShell = createPopupShell;
@@ -5281,7 +5329,7 @@
 })()
 
 /*!
- * Re:Likes v1.1.0
+ * Re:Likes v1.1.1
  * Passage-level like and dislike reactions for the web.
  *
  * Copyright (c) 2026 kotoverse
@@ -5342,6 +5390,9 @@
   const SEGMENTER = typeof Intl !== 'undefined' && 'Segmenter' in Intl
     ? new Intl.Segmenter(undefined, { granularity: 'grapheme' })
     : null;
+  // Only indexes built here guarantee monotonically increasing text offsets.
+  // Caller-supplied fragment arrays retain the general range-filter behavior.
+  const ORDERED_FRAGMENT_ARRAYS = new WeakSet();
 
   /*
     Re:Likes is local-first: reactions are committed to this small store before
@@ -7049,6 +7100,7 @@
 
     const scoredFragments = [];
     let segmentCursor = 0;
+    let maxChannelHits = 1;
 
     for (const fragment of indexModel.fragments) {
       while (segments[segmentCursor]?.end <= fragment.globalStart) {
@@ -7073,16 +7125,13 @@
 
       if (likes + dislikes > 0) {
         scoredFragments.push({ fragment, likes, dislikes });
+        maxChannelHits = Math.max(maxChannelHits, likes, dislikes);
       }
     }
 
     // Quantize only after local reactions have been added to the exact server
     // counts. This preserves immediate local feedback and lets adjacent text
     // fragments that land in the same visual bands share one overlay entry.
-    const maxChannelHits = Math.max(
-      1,
-      ...scoredFragments.flatMap(scored => [scored.likes, scored.dislikes])
-    );
     const maximumSteps = Math.min(
       heatmapOptions.maxSteps,
       heatmap.maxSteps ?? heatmapOptions.maxSteps
@@ -7442,6 +7491,7 @@
       range.detach?.();
     }
 
+    ORDERED_FRAGMENT_ARRAYS.add(fragments);
     return {
       fragments,
       text: semanticText
@@ -7915,9 +7965,31 @@
   }
 
   function getFragmentsForRange(indexModel, start, end) {
-    return indexModel.fragments.filter(fragment =>
-      fragment.globalStart >= start && fragment.globalEnd <= end
-    );
+    const fragments = indexModel.fragments;
+    if (!ORDERED_FRAGMENT_ARRAYS.has(fragments)) {
+      return fragments.filter(fragment =>
+        fragment.globalStart >= start && fragment.globalEnd <= end
+      );
+    }
+
+    // Find the fully contained graphemes without rescanning the entire document
+    // for every saved reaction/run. Unmeasured text and partial graphemes stay out.
+    let low = 0;
+    let high = fragments.length;
+    while (low < high) {
+      const middle = low + Math.floor((high - low) / 2);
+      if (fragments[middle].globalStart >= start) high = middle;
+      else low = middle + 1;
+    }
+
+    const first = low;
+    high = fragments.length;
+    while (low < high) {
+      const middle = low + Math.floor((high - low) / 2);
+      if (fragments[middle].globalEnd <= end) low = middle + 1;
+      else high = middle;
+    }
+    return fragments.slice(first, low);
   }
 
   function getFragmentsForAnchor(indexModel, anchor) {
@@ -8398,7 +8470,7 @@
   }
 
   window.Relikes = {
-    version: '1.1.0',
+    version: '1.1.1',
     attach,
     getOrCreateUserId,
     LocalReactionStore,

@@ -3,7 +3,7 @@
  * Plugin Name: Re:Likes
  * Plugin URI: https://relikes.com/
  * Description: Persistent like and dislike reactions attached to exact passages of WordPress content.
- * Version: 1.1.0
+ * Version: 1.1.1
  * Requires at least: 6.2
  * Requires PHP: 7.4
  * Author: kotoverse
@@ -23,10 +23,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'RELIKES_WP_VERSION', '1.1.0' );
+define( 'RELIKES_WP_VERSION', '1.1.1' );
 define( 'RELIKES_DB_VERSION', '1' );
 if ( ! defined( 'CLEAN_SELECTION_CORE_VERSION' ) ) {
-	define( 'CLEAN_SELECTION_CORE_VERSION', '1.1.0' );
+	define( 'CLEAN_SELECTION_CORE_VERSION', '1.1.1' );
 }
 define( 'RELIKES_WP_FILE', __FILE__ );
 define( 'RELIKES_WP_DIR', plugin_dir_path( __FILE__ ) );

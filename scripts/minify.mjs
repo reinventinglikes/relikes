@@ -26,7 +26,7 @@ async function firstReadable(paths) {
       // Try the next supported source location.
     }
   }
-  throw new Error('Clean Selection 1.1.0 was not found. Set CLEAN_SELECTION_SOURCE, use a sibling checkout, or install cleanselection.');
+  throw new Error('Clean Selection 1.1.1 was not found. Set CLEAN_SELECTION_SOURCE, use a sibling checkout, or install cleanselection.');
 }
 
 async function loadTerser() {
@@ -79,11 +79,11 @@ const cleanSelectionPath = await firstReadable([
 ]);
 const cleanSelection = (await readFile(cleanSelectionPath, 'utf8')).replace(/\r\n/g, '\n').trimEnd() + '\n';
 const relikes = (await readFile(resolve(root, 'src/relikes.js'), 'utf8')).replace(/\r\n/g, '\n').trimEnd() + '\n';
-if (!cleanSelection.includes("CleanSelection.version = '1.1.0'")) {
-  throw new Error('Standalone builds require Clean Selection 1.1.0.');
+if (!cleanSelection.includes("CleanSelection.version = '1.1.1'")) {
+  throw new Error('Standalone builds require Clean Selection 1.1.1.');
 }
-if (!relikes.includes("version: '1.1.0'")) {
-  throw new Error('The Re:Likes source version does not match package version 1.1.0.');
+if (!relikes.includes("version: '1.1.1'")) {
+  throw new Error('The Re:Likes source version does not match package version 1.1.1.');
 }
 
 await mkdir(resolve(root, 'dist'), { recursive: true });
@@ -95,5 +95,5 @@ await minify(
   terser,
   cleanSelection + '\n' + relikes,
   'dist/relikes.standalone.min.js',
-  ['Clean Selection v1.1.0', 'Re:Likes v1.1.0', 'window.CleanSelection', 'window.Relikes']
+  ['Clean Selection v1.1.1', 'Re:Likes v1.1.1', 'window.CleanSelection', 'window.Relikes']
 );

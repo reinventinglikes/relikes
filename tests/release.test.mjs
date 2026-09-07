@@ -18,7 +18,7 @@ test('browser source exposes the documented API', async () => {
     'buildContentIndex,',
     'createAnchorFromQuote,',
     'buildHeatmapEntries,',
-    "version: '1.1.0'"
+    "version: '1.1.1'"
   ]) {
     assert.ok(source.includes(token), `missing ${token}`);
   }
@@ -65,8 +65,8 @@ test('WordPress fractional brush controls retain fine input precision', async ()
 test('standalone build retains both MIT notices', async () => {
   for (const file of ['dist/relikes.standalone.js', 'dist/relikes.standalone.min.js']) {
     const standalone = await readFile(resolve(root, file), 'utf8');
-    assert.match(standalone, /Clean Selection v1\.1\.0/);
-    assert.match(standalone, /Re:Likes v1\.1\.0/);
+    assert.match(standalone, /Clean Selection v1\.1\.1/);
+    assert.match(standalone, /Re:Likes v1\.1\.1/);
     assert.equal((standalone.match(/Copyright \(c\) 2026 kotoverse/g) || []).length, 2);
   }
 });

@@ -188,7 +188,7 @@ declare namespace Relikes {
 }
 
 declare const Relikes: {
-  readonly version: '1.1.0';
+  readonly version: '1.1.1';
   attach(element: HTMLElement, options?: Relikes.Options): Relikes.Instance;
   getOrCreateUserId(key?: string): string;
   LocalReactionStore: typeof Relikes.LocalReactionStore;

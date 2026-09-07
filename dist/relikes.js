@@ -1,5 +1,5 @@
 /*!
- * Re:Likes v1.1.0
+ * Re:Likes v1.1.1
  * Passage-level like and dislike reactions for the web.
  *
  * Copyright (c) 2026 kotoverse
@@ -60,6 +60,9 @@
   const SEGMENTER = typeof Intl !== 'undefined' && 'Segmenter' in Intl
     ? new Intl.Segmenter(undefined, { granularity: 'grapheme' })
     : null;
+  // Only indexes built here guarantee monotonically increasing text offsets.
+  // Caller-supplied fragment arrays retain the general range-filter behavior.
+  const ORDERED_FRAGMENT_ARRAYS = new WeakSet();
 
   /*
     Re:Likes is local-first: reactions are committed to this small store before
@@ -1767,6 +1770,7 @@
 
     const scoredFragments = [];
     let segmentCursor = 0;
+    let maxChannelHits = 1;
 
     for (const fragment of indexModel.fragments) {
       while (segments[segmentCursor]?.end <= fragment.globalStart) {
@@ -1791,16 +1795,13 @@
 
       if (likes + dislikes > 0) {
         scoredFragments.push({ fragment, likes, dislikes });
+        maxChannelHits = Math.max(maxChannelHits, likes, dislikes);
       }
     }
 
     // Quantize only after local reactions have been added to the exact server
     // counts. This preserves immediate local feedback and lets adjacent text
     // fragments that land in the same visual bands share one overlay entry.
-    const maxChannelHits = Math.max(
-      1,
-      ...scoredFragments.flatMap(scored => [scored.likes, scored.dislikes])
-    );
     const maximumSteps = Math.min(
       heatmapOptions.maxSteps,
       heatmap.maxSteps ?? heatmapOptions.maxSteps
@@ -2160,6 +2161,7 @@
       range.detach?.();
     }
 
+    ORDERED_FRAGMENT_ARRAYS.add(fragments);
     return {
       fragments,
       text: semanticText
@@ -2633,9 +2635,31 @@
   }
 
   function getFragmentsForRange(indexModel, start, end) {
-    return indexModel.fragments.filter(fragment =>
-      fragment.globalStart >= start && fragment.globalEnd <= end
-    );
+    const fragments = indexModel.fragments;
+    if (!ORDERED_FRAGMENT_ARRAYS.has(fragments)) {
+      return fragments.filter(fragment =>
+        fragment.globalStart >= start && fragment.globalEnd <= end
+      );
+    }
+
+    // Find the fully contained graphemes without rescanning the entire document
+    // for every saved reaction/run. Unmeasured text and partial graphemes stay out.
+    let low = 0;
+    let high = fragments.length;
+    while (low < high) {
+      const middle = low + Math.floor((high - low) / 2);
+      if (fragments[middle].globalStart >= start) high = middle;
+      else low = middle + 1;
+    }
+
+    const first = low;
+    high = fragments.length;
+    while (low < high) {
+      const middle = low + Math.floor((high - low) / 2);
+      if (fragments[middle].globalEnd <= end) low = middle + 1;
+      else high = middle;
+    }
+    return fragments.slice(first, low);
   }
 
   function getFragmentsForAnchor(indexModel, anchor) {
@@ -3116,7 +3140,7 @@
   }
 
   window.Relikes = {
-    version: '1.1.0',
+    version: '1.1.1',
     attach,
     getOrCreateUserId,
     LocalReactionStore,

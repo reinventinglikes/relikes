@@ -4,7 +4,7 @@ Tags: reactions, likes, heatmap, comments, annotations
 Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: GPLv2 or later
 
 Persistent like and dislike reactions attached to exact passages in WordPress posts, pages, custom post types, and comments.
@@ -66,6 +66,10 @@ The first release uses lazy per-surface heatmap requests rather than a batch end
 The operational Clean Selection and Re:Likes browser cores are minified with Terser. Their complete readable sources are included beside them as `assets/js/cleanselection.js` and `assets/js/relikes.js`. Project source and build tooling are published at https://github.com/reinventinglikes/relikes.
 
 == Changelog ==
+
+= 1.1.1 =
+* Improved reaction-range lookup and large-document heatmap scoring.
+* Updated the bundled Clean Selection dependency to 1.1.1.
 
 = 1.1.0 =
 * Added a configurable maximum of 100 heatmap intensity levels by default and grouped adjacent fragments that share a visual level.

@@ -37,7 +37,7 @@ Use distinct `docId` values for multiple selectable regions. Changing selectable
 | `touchEraseBar` | `true` | Built-in Select/Deselect touch bar or its configuration object. |
 | `popupRenderer` | built in | Custom Re:Likes popup renderer function or lifecycle object. |
 
-See the [Clean Selection configuration reference](https://github.com/cleanselection/cleanselection/blob/v1.1.0/docs/CONFIGURATION.md) for forwarded `airbrush` fields.
+See the [Clean Selection configuration reference](https://github.com/cleanselection/cleanselection/blob/v1.1.1/docs/CONFIGURATION.md) for forwarded `airbrush` fields.
 
 ## Heatmap
 

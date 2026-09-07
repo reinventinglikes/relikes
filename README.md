@@ -9,7 +9,7 @@ Re:Likes attaches persistent Like and Dislike reactions to exact passages instea
 
 [Live demo and configurator](https://relikes.com) · [API](docs/API.md) · [Protocol](docs/PROTOCOL.md) · [MIT license](LICENSE)
 
-Re:Likes builds on [Clean Selection](https://github.com/cleanselection/cleanselection) `1.1.0`.
+Re:Likes builds on [Clean Selection](https://github.com/cleanselection/cleanselection) `1.1.1`.
 
 ## Install
 
@@ -46,7 +46,7 @@ The package is browser-first and creates `window.Relikes`. TypeScript declaratio
 
 ## Builds
 
-- `dist/relikes.js` requires Clean Selection `1.1.0` to be loaded first.
+- `dist/relikes.js` requires Clean Selection `1.1.1` to be loaded first.
 - `dist/relikes.min.js` is its minified equivalent.
 - `dist/relikes.standalone.js` includes the pinned Clean Selection code.
 - `dist/relikes.standalone.min.js` is the recommended one-file production build.

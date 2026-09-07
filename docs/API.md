@@ -3,13 +3,13 @@
 
 # Public API
 
-Re:Likes is an IIFE browser script that exposes `window.Relikes`. Load Clean Selection `1.1.0` first unless using the standalone build.
+Re:Likes is an IIFE browser script that exposes `window.Relikes`. Load Clean Selection `1.1.1` first unless using the standalone build.
 
 ## Primary API
 
 ### `Relikes.version`
 
-The library version string, currently `1.1.0`.
+The library version string, currently `1.1.1`.
 
 ### `Relikes.attach(element, options?)`
 

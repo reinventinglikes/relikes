@@ -35,16 +35,16 @@ const standalone = await readFile(resolve(root, 'dist/relikes.standalone.js'), '
 const readable = await readFile(resolve(root, 'dist/relikes.js'), 'utf8');
 const minified = await readFile(resolve(root, 'dist/relikes.min.js'), 'utf8');
 const standaloneMinified = await readFile(resolve(root, 'dist/relikes.standalone.min.js'), 'utf8');
-if (packageJson.version !== '1.1.0' || !source.includes("version: '1.1.0'") || !plugin.includes('Version: 1.1.0')) {
+if (packageJson.version !== '1.1.1' || !source.includes("version: '1.1.1'") || !plugin.includes('Version: 1.1.1')) {
   throw new Error('Release versions are not synchronized.');
 }
-if (!standalone.includes("CleanSelection.version = '1.1.0'") || !standalone.includes("version: '1.1.0'")) {
-  throw new Error('The standalone distribution does not contain both pinned 1.1.0 libraries.');
+if (!standalone.includes("CleanSelection.version = '1.1.1'") || !standalone.includes("version: '1.1.1'")) {
+  throw new Error('The standalone distribution does not contain both pinned 1.1.1 libraries.');
 }
 if (!minified.includes('@license MIT') || !minified.includes('window.Relikes')) {
   throw new Error('The minified dependency build is missing its license or public global.');
 }
-for (const token of ['Clean Selection v1.1.0', 'Re:Likes v1.1.0', 'window.CleanSelection', 'window.Relikes']) {
+for (const token of ['Clean Selection v1.1.1', 'Re:Likes v1.1.1', 'window.CleanSelection', 'window.Relikes']) {
   if (!standaloneMinified.includes(token)) {
     throw new Error(`The minified standalone build is missing ${token}.`);
   }

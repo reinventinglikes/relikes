@@ -5,7 +5,7 @@ SPDX-License-Identifier: MIT
 
 # Re:Likes PHP JSON backend
 
-This simple backend accompanies Re:Likes 1.1.0 and the live example at [relikes.com](https://relikes.com). Demo HTML is not included in the repository. The backend requires PHP 8.1 or newer and uses no database or external package. Local reactions remain available immediately through localStorage; `relikes.js` owns the canonical snapshot, identity, synchronization, and heatmap protocol.
+This simple backend accompanies Re:Likes 1.1.1 and the live example at [relikes.com](https://relikes.com). Demo HTML is not included in the repository. The backend requires PHP 8.1 or newer and uses no database or external package. Local reactions remain available immediately through localStorage; `relikes.js` owns the canonical snapshot, identity, synchronization, and heatmap protocol.
 
 The endpoint and route layout are supplied when each Re:Likes instance is initialized:
 
